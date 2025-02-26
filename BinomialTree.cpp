@@ -29,7 +29,15 @@ double BinomialTree::operator()(int steps) const
     {
         for (int i = 0; i <= j; i++)
         {
+
             optionPrices[i] = discount_factor * (pu * optionPrices[i] + pd * optionPrices[i + 1]);
+
+            // Check early exercise for American options
+            if (option_type_ == OptionType::AmericanCall || option_type_ == OptionType::AmericanPut)
+            {
+                double early_exercise = payoff(std::exp(std::log(spot_) + (j - 2 * i) * dx));
+                optionPrices[i] = std::max(optionPrices[i], early_exercise);
+            }
         }
     }
 
@@ -38,9 +46,10 @@ double BinomialTree::operator()(int steps) const
 
 double BinomialTree::payoff(double spot) const
 {
-    int phi = static_cast<int>(option_type_);
-
-    return std::max(spot * phi - phi * strike_, 0.0);
+    if (option_type_ == OptionType::EuropeanCall || option_type_ == OptionType::AmericanCall)
+        return std::max(spot - strike_, 0.0);
+    else
+        return std::max(strike_ - spot, 0.0);
 }
 
 // Overloaded output stream operator
@@ -52,6 +61,6 @@ std::ostream &operator<<(std::ostream &os, const BinomialTree &bt)
        << "Time to Maturity: " << bt.time_to_maturity_ << " years\n"
        << "Interest Rate: " << bt.interest_rate_ * 100 << "%\n"
        << "Volatility: " << bt.sigma_ * 100 << "%\n"
-       << "Option Type: " << (bt.option_type_ == OptionType::Call ? "Call" : "Put") << "\n";
+       << "Option Type: " << (bt.option_type_ == OptionType::AmericanCall || bt.option_type_ == OptionType::EuropeanCall ? "Call" : "Put") << "\n";
     return os;
 }

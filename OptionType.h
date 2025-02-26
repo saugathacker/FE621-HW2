@@ -1,6 +1,9 @@
-// enmum class to classify the option type
+#pragma once
+
 enum class OptionType
 {
-    Call = 1,
-    Put = -1
+    EuropeanCall = 1,
+    EuropeanPut = -1,
+    AmericanCall = 2,
+    AmericanPut = -2
 };

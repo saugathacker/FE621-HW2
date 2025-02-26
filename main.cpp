@@ -12,16 +12,25 @@ int main()
     int steps = 100;             // Number of steps in binomial tree
 
     // Create BinomialTree objects for Call and Put options
-    BinomialTree call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::Call);
-    BinomialTree put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::Put);
+    BinomialTree euro_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanCall);
+    BinomialTree euro_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanPut);
+    BinomialTree ameri_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanCall);
+    BinomialTree ameri_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanPut);
 
     // Compute option prices using BinomialTree
-    double call_price = call_tree(steps);
-    double put_price = put_tree(steps);
+    double call_price = euro_call_tree(steps);
+    double put_price = euro_put_tree(steps);
 
     // Output results
     std::cout << "European Call Option Price: " << call_price << std::endl;
     std::cout << "European Put Option Price: " << put_price << std::endl;
+
+    call_price = ameri_call_tree(steps);
+    put_price = ameri_put_tree(steps);
+
+    // Output results
+    std::cout << "American Call Option Price: " << call_price << std::endl;
+    std::cout << "American Put Option Price: " << put_price << std::endl;
 
     return 0;
 }
