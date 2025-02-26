@@ -1,4 +1,5 @@
-#include "BinomialTree.cpp"
+#include "BinomialTree.h"
+#include "TrinomialTree.h"
 
 int main()
 {
@@ -31,6 +32,30 @@ int main()
     // Output results
     std::cout << "American Call Option Price: " << call_price << std::endl;
     std::cout << "American Put Option Price: " << put_price << std::endl;
+
+    std::cout << "===================================================" << std::endl;
+    std::cout << "Trinomial Tree" << std::endl;
+
+    // Create Trinomial Tree objects for Call and Put options
+    TrinomialTree trinom_euro_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanCall);
+    TrinomialTree trinom_euro_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanPut);
+    TrinomialTree trinom_ameri_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanCall);
+    TrinomialTree trinom_ameri_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanPut);
+
+    // Compute option prices using Trinomial Tree
+    double call_price3 = trinom_euro_call_tree(steps);
+    double put_price3 = trinom_euro_put_tree(steps);
+
+    // Output results
+    std::cout << "European Call Option Price: " << call_price3 << std::endl;
+    std::cout << "European Put Option Price: " << put_price3 << std::endl;
+
+    call_price3 = trinom_ameri_call_tree(steps);
+    put_price3 = trinom_ameri_put_tree(steps);
+
+    // Output results
+    std::cout << "American Call Option Price: " << call_price3 << std::endl;
+    std::cout << "American Put Option Price: " << put_price3 << std::endl;
 
     return 0;
 }

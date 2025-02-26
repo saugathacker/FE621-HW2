@@ -18,7 +18,7 @@ double BSM::operator()(double vol) const
     double d2 = norm_args[1];
 
     // calculating phi to help determine optiontype
-    int phi = static_cast<int>(option_type_);
+    int phi = (option_type_ == OptionType::EuropeanCall || option_type_ == OptionType::AmericanCall) ? 1 : -1;
 
     double nD1 = norm_cdf(phi * d1);
     double nD2 = norm_cdf(phi * d2);

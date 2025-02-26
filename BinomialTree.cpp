@@ -10,10 +10,11 @@ BinomialTree::BinomialTree(double spot, double strike, double time_to_maturity,
 double BinomialTree::operator()(int steps) const
 {
     double dt = time_to_maturity_ / steps;
-    double dx, pu, pd;
+    double drift, dx, pu, pd;
 
-    dx = std::sqrt(std::pow((interest_rate_ - 0.5 * sigma_ * sigma_), 2) * dt * dt + sigma_ * sigma_ * dt);
-    pu = 0.5 + ((interest_rate_ - 0.5 * sigma_ * sigma_) * dt) / (2.0 * dx);
+    drift = (interest_rate_ - 0.5 * sigma_ * sigma_);
+    dx = std::sqrt(std::pow(drift, 2) * dt * dt + sigma_ * sigma_ * dt);
+    pu = 0.5 + (drift * dt) / (2.0 * dx);
     pd = 1 - pu;
     double discount_factor = std::exp(-interest_rate_ * dt); // dicount factor for each step
     std::vector<double> optionPrices(steps + 1);
