@@ -2,6 +2,7 @@
 
 #include <iostream> // Required for debugging
 
+// overload () operator which takes steps as input to calculate trinomial tree option price
 double TrinomialTree::operator()(int steps) const
 {
     double dt = time_to_maturity_ / steps;
@@ -43,6 +44,7 @@ double TrinomialTree::operator()(int steps) const
     return optionPrices[0];
 }
 
+// calculate barrier option using trinomial tree
 double TrinomialTree::get_barrier_option_price(int steps, BarrierOptionType barrier_type, double barrier_level)
 {
     double dt = time_to_maturity_ / steps;
@@ -85,6 +87,7 @@ double TrinomialTree::get_barrier_option_price(int steps, BarrierOptionType barr
             double current_stock_price = std::exp(log_spot + (j - i) * dx);
             double option_price = discount_factor * (pu * optionPrices[i] + pm * optionPrices[i + 1] + pd * optionPrices[i + 2]);
 
+            // checking if the option has been activated or not
             bool is_activated = false;
             switch (barrier_type)
             {

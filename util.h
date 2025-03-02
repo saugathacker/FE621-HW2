@@ -15,4 +15,8 @@ std::map<int, double> absolute_error(BSM &bs, BinomialTree &bt);
 // Bisection Method
 double bisection_method(BSM &bs, double market_price, bool debug = false);
 
+// Bisection Method for tree
+double tree_bisection(BinomialTree &bt, double market_price);
+
+// early exercise set
 std::set<double> early_exercise_strikes(double q, bool is_cont);

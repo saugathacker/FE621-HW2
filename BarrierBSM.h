@@ -1,6 +1,7 @@
 #pragma once
 #include "BSM.h"
 
+// Class to implement explicit formula for barrier option using BlackScholes Model
 class BarrierBSM
 {
 public:

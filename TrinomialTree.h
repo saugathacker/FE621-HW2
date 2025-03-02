@@ -1,6 +1,7 @@
 #pragma once
 #include "BinomialTree.h"
 
+// inherits the Binomial tree and only override the () operator to price option
 class TrinomialTree : public BinomialTree
 {
 public:

@@ -43,6 +43,16 @@ void Ticker::calculate_binom_tree_price()
     }
 }
 
+// calcullate the iv using tree methods
+void Ticker::calculate_tree_iv()
+{
+    for (auto &option : options)
+    {
+        option->calculate_binom_iv(spotPrice, interestRate);
+        option->calculate_trinom_iv(spotPrice, interestRate);
+    }
+}
+
 // implentaion of write to csv all the option data (observed and calculated) of this Ticker
 void Ticker::write_to_csv(const std::string &filename) const
 {
@@ -55,7 +65,7 @@ void Ticker::write_to_csv(const std::string &filename) const
 
     // **Write CSV Header**
     file << "Ticker,Expiration,TimeToMaturity,Strike,OptionType,LastPrice,"
-         << "Bid,Ask,ImpliedVolatility,BisectionIV,BisectionTime,Bs_price,Binom_price,American_binom_price,InTheMoney\n";
+         << "Bid,Ask,ImpliedVolatility,BisectionIV,BisectionTime,Bs_price,Binom_price,American_binom_price,Binom_bisection_iv, Trinom_bisection_iv,InTheMoney\n";
 
     // **Write Option Data**
     for (const auto &option : options)
@@ -74,6 +84,8 @@ void Ticker::write_to_csv(const std::string &filename) const
              << option->bs_price << ","
              << option->binom_price << ","
              << option->american_binom_price << ","
+             << option->binomBisectioIV << ","
+             << option->trinomBisectionIV << ","
              << (option->inTheMoney ? "True" : "False") << "\n";
     }
 

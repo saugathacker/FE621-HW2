@@ -10,6 +10,7 @@ public:
                  double interest_rate, double sigma, OptionType option_type);
     virtual double operator()(int steps) const;
     virtual double payoff(double spot) const;
+    // getters
     double get_spot() const { return spot_; }
     double get_strike() const { return strike_; }
     double get_time_to_maturity() const { return time_to_maturity_; }
@@ -17,6 +18,13 @@ public:
     double get_sigma_() const { return sigma_; }
     OptionType get_option_type() const { return option_type_; }
     friend std::ostream &operator<<(std::ostream &os, const BinomialTree &bt);
+
+    // impelemnt chooser option methods
+    double chooser_payoff(double spot);
+    double chooser_option(int steps);
+
+    // setter
+    void setVol(double vol);
 
 protected:
     double spot_, strike_;

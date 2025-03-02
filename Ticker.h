@@ -30,9 +30,10 @@ public:
     // find and return a pointer to the OptionData that matches strike, expiration and type
     OptionData *findOption(double strike, const std::string &expiration, const std::string &optionType) const;
 
-    // functions to calculate the implied vol, greeks, parity price and bs price
+    // functions to calculate the implied vol, bs price, tree price
     void calculate_implied_vols_and_bs_price();
     void calculate_binom_tree_price();
+    void calculate_tree_iv();
 
     // function to write all options to a CSV file
     void write_to_csv(const std::string &filename) const;

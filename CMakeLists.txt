@@ -4,41 +4,45 @@ project(FE621HW2)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Create a header-only library for OptionType
+# Header-only library for OptionType
 add_library(OptionType INTERFACE)
 target_include_directories(OptionType INTERFACE ${CMAKE_SOURCE_DIR})
 
-# Create util library (for norm_cdf and other utility functions)
+# Utility Library (Common Functions)
 add_library(UtilLib STATIC util.cpp)
+target_link_libraries(UtilLib PUBLIC OptionType)  # PUBLIC allows all users of UtilLib to access OptionType
 
-# Create BSM Library
-add_library(BSMLib BSM.cpp)
-target_link_libraries(BSMLib PRIVATE OptionType UtilLib)
+# Black-Scholes Model Library
+add_library(BSMLib STATIC BSM.cpp)
+target_link_libraries(BSMLib PUBLIC UtilLib OptionType)  # PUBLIC allows BSM dependents to access UtilLib
 
-add_library(OptionDataLib OptionData.cpp)
-target_link_libraries(OptionDataLib PRIVATE UtilLib BSMLib BinomialTreeLib OptionType)
+# Option Data Library
+add_library(OptionDataLib STATIC OptionData.cpp)
+target_link_libraries(OptionDataLib PUBLIC UtilLib BSMLib BinomialTreeLib OptionType)
 
-add_library(TickerLib Ticker.cpp)
-target_link_libraries(TickerLib PRIVATE OptionDataLib)
+# Ticker Library
+add_library(TickerLib STATIC Ticker.cpp)
+target_link_libraries(TickerLib PUBLIC OptionDataLib)
 
-add_library(FileHandlerLib FileHandler.cpp)
-target_link_libraries(FileHandlerLib PRIVATE TickerLib)
+# FileHandler Library
+add_library(FileHandlerLib STATIC FileHandler.cpp)
+target_link_libraries(FileHandlerLib PUBLIC TickerLib)
 
-# Create BarrierBSM Library
-add_library(BarrierBSMLib BarrierBSM.cpp)
-target_link_libraries(BarrierBSMLib PRIVATE BSMLib UtilLib)
+# Barrier BSM Library
+add_library(BarrierBSMLib STATIC BarrierBSM.cpp)
+target_link_libraries(BarrierBSMLib PUBLIC BSMLib UtilLib)
 
-# Create BinomialTree library
-add_library(BinomialTreeLib BinomialTree.cpp)
-target_link_libraries(BinomialTreeLib PRIVATE OptionType UtilLib)
+# Binomial Tree Library
+add_library(BinomialTreeLib STATIC BinomialTree.cpp)
+target_link_libraries(BinomialTreeLib PUBLIC UtilLib OptionType)
 
-# Create TrinomialTree library (which depends on BinomialTree)
-add_library(TrinomialTreeLib TrinomialTree.cpp)
-target_link_libraries(TrinomialTreeLib PRIVATE BinomialTreeLib UtilLib)
+# Trinomial Tree Library (which depends on BinomialTree)
+add_library(TrinomialTreeLib STATIC TrinomialTree.cpp)
+target_link_libraries(TrinomialTreeLib PUBLIC BinomialTreeLib UtilLib)
 
-# Create main executable
+# Main executable
 add_executable(main main.cpp)
-target_link_libraries(main PRIVATE 
+target_link_libraries(main PUBLIC 
     OptionType 
     UtilLib 
     BSMLib 

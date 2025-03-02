@@ -69,3 +69,55 @@ std::ostream &operator<<(std::ostream &os, const BinomialTree &bt)
        << "Option Type: " << (bt.option_type_ == OptionType::AmericanCall || bt.option_type_ == OptionType::EuropeanCall ? "Call" : "Put") << "\n";
     return os;
 }
+
+// calculates the chooser payoff at given spot price
+double BinomialTree::chooser_payoff(double spot)
+{
+    return std::max(std::max(spot - strike_, 0.0), std::max(strike_ - spot, 0.0));
+}
+
+// calculate the chooser option for both American and European optio
+double BinomialTree::chooser_option(int steps)
+{
+    double dt = time_to_maturity_ / steps;
+    double drift, dx, pu, pd;
+
+    drift = (interest_rate_ - 0.5 * sigma_ * sigma_);
+    // implent the formula dor dx, pu and pd
+    dx = std::sqrt(std::pow(drift, 2) * dt * dt + sigma_ * sigma_ * dt);
+    pu = 0.5 + (drift * dt) / (2.0 * dx);
+    pd = 1 - pu;
+    double discount_factor = std::exp(-interest_rate_ * dt); // dicount factor for each step
+    std::vector<double> optionPrices(steps + 1);
+
+    for (int i = 0; i <= steps; i++)
+    {
+        // payoff at the terminal node
+        double log_spot_node = std::log(spot_) + (steps - 2 * i) * dx;
+        double spot_node = std::exp(log_spot_node);
+        optionPrices[i] = chooser_payoff(spot_node);
+    }
+
+    // backward induction
+    for (int j = steps - 1; j >= 0; j--)
+    {
+        for (int i = 0; i <= j; i++)
+        {
+            optionPrices[i] = discount_factor * (pu * optionPrices[i] + pd * optionPrices[i + 1]);
+            // check early exercise for American options
+            if (option_type_ == OptionType::AmericanCall || option_type_ == OptionType::AmericanPut)
+            {
+                // exercise early if any of the call or put option is higher than the discounted option price
+                double early_exercise = chooser_payoff(std::exp(std::log(spot_) + (j - 2 * i) * dx));
+                optionPrices[i] = std::max(optionPrices[i], early_exercise);
+            }
+        }
+    }
+
+    return optionPrices[0];
+}
+
+void BinomialTree::setVol(double vol)
+{
+    sigma_ = vol;
+}

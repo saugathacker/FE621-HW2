@@ -28,6 +28,9 @@ struct OptionData
   double trinom_price;
   double american_trinom_price;
 
+  double binomBisectioIV;
+  double trinomBisectionIV;
+
   // Constructor for initialization
   OptionData(const std::string &exp, double ttm, double strk, const std::string &type,
              double lp, double b, double a, double iv, bool itm)
@@ -39,4 +42,6 @@ struct OptionData
   void calculate_bs_price(double spot, double rate);
   void calculate_binom_tree_price(double spot, double rate, int steps);
   void calculate_american_binom_tree_price(double spot, double rate, int steps);
+  void calculate_binom_iv(double spotPrice, double interestRate);
+  void calculate_trinom_iv(double spotPrice, double interestRate);
 };

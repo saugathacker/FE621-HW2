@@ -20,4 +20,5 @@ public:
 
     // Reads CSV and returns a map of tickers
     std::unordered_map<std::string, std::unique_ptr<Ticker>> read_csv_into_ticker_object(const std::string &fileName);
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> read_csv_into_ticker_object2(const std::string &fileName);
 };

@@ -4,6 +4,7 @@
 #include "util.h"
 #include "BSM.h"
 #include "BinomialTree.h"
+#include "TrinomialTree.h"
 
 // implementation of calculate iv and greeks
 void OptionData::calculate_iv_and_greeks(double spotPrice, double interestRate)
@@ -50,4 +51,43 @@ void OptionData::calculate_american_binom_tree_price(double spot, double rate, i
 {
     BinomialTree binom_tree(spot, strike, timeToMaturity, rate, bisectionImpliedVol, (optionType == "Call" ? OptionType::AmericanCall : OptionType::AmericanPut));
     american_binom_price = binom_tree(steps);
+}
+
+// calculating IV using tree methods
+void OptionData::calculate_binom_iv(double spotPrice, double interestRate)
+{
+    // Skip calculation if lastPrice, bid, and ask are all zero
+    if ((lastPrice <= 0.0 || std::isnan(lastPrice)) &&
+        (bid <= 0.0 || std::isnan(bid)) &&
+        (ask <= 0.0 || std::isnan(ask)))
+    {
+        return; // Do not calculate IV if no valid market data exists
+    }
+
+    // Use mid-price if bid/ask exist, otherwise use last price
+    double market_price = (bid > 0 && ask > 0) ? (bid + ask) / 2 : lastPrice;
+
+    BinomialTree bt(spotPrice, strike, timeToMaturity, interestRate, 1.5,
+                    (optionType == "Call" ? OptionType::EuropeanCall : OptionType::EuropeanPut));
+
+    binomBisectioIV = tree_bisection(bt, market_price);
+}
+
+void OptionData::calculate_trinom_iv(double spotPrice, double interestRate)
+{
+    // Skip calculation if lastPrice, bid, and ask are all zero
+    if ((lastPrice <= 0.0 || std::isnan(lastPrice)) &&
+        (bid <= 0.0 || std::isnan(bid)) &&
+        (ask <= 0.0 || std::isnan(ask)))
+    {
+        return; // Do not calculate IV if no valid market data exists
+    }
+
+    // Use mid-price if bid/ask exist, otherwise use last price
+    double market_price = (bid > 0 && ask > 0) ? (bid + ask) / 2 : lastPrice;
+
+    TrinomialTree trinom_tree(spotPrice, strike, timeToMaturity, interestRate, 1.5,
+                              (optionType == "Call" ? OptionType::EuropeanCall : OptionType::EuropeanPut));
+
+    trinomBisectionIV = tree_bisection(trinom_tree, market_price);
 }

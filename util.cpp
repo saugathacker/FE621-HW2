@@ -15,6 +15,7 @@ double norm_pdf(double x)
     return std::exp(-0.5 * x * x) / std::sqrt(2 * std::numbers::pi);
 }
 
+// absolute error between BSM and Binomial tree for different number of steps
 std::map<int, double> absolute_error(BSM &bs, BinomialTree &bt)
 {
     std::array<int, 12> steps_list = {10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 350, 400};
@@ -30,6 +31,7 @@ std::map<int, double> absolute_error(BSM &bs, BinomialTree &bt)
     return result;
 }
 
+// calculate the root of the function using Bisection and BSM
 double bisection_method(BSM &bs, double market_price, bool debug)
 {
     double a = 0.0001;
@@ -82,6 +84,54 @@ double bisection_method(BSM &bs, double market_price, bool debug)
 
     if (debug)
         std::cout << "Ending Bisection Method after " << iter << " iterations.\n";
+
+    // **Ensure valid output within IV range**
+    c = std::max(epsilon, std::min(c, b));
+
+    return c;
+}
+
+// calculates the root of the fucntion using tree and bisection method
+double tree_bisection(BinomialTree &bt, double market_price)
+{
+    double a = 0.0001;
+    double b = 3.0;
+    double c = (a + b) / 2;
+    double epsilon = 1e-06;
+    int steps = 200;
+    bt.setVol(c);
+    double tol = bt(steps) - market_price;
+    int max_iter = 1000;
+    int iter = 0;
+
+    // **Check if the root is even bracketed**
+    bt.setVol(a);
+    double fa = bt(steps) - market_price;
+    bt.setVol(b);
+    double fb = bt(steps) - market_price;
+
+    if (fa * fb > 0)
+    {
+        return std::min(std::max(epsilon, a), b);
+    }
+
+    while (std::abs(tol) > epsilon && iter < max_iter)
+    {
+        bt.setVol(c);
+        tol = bt(steps) - market_price;
+
+        if (tol < 0)
+        {
+            a = c;
+        }
+        else
+        {
+            b = c;
+        }
+
+        c = (a + b) / 2;
+        iter++;
+    }
 
     // **Ensure valid output within IV range**
     c = std::max(epsilon, std::min(c, b));
