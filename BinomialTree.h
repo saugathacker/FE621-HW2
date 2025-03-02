@@ -2,6 +2,7 @@
 #include <iostream>
 #include "OptionType.h"
 
+// class to generate and price option using binomial tree
 class BinomialTree
 {
 public:

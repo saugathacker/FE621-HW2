@@ -7,12 +7,14 @@ BinomialTree::BinomialTree(double spot, double strike, double time_to_maturity,
     : spot_(spot), strike_(strike), time_to_maturity_(time_to_maturity),
       interest_rate_(interest_rate), sigma_(sigma), option_type_(option_type) {}
 
+// overloading the () operator to calculate the option price by taking steps as input
 double BinomialTree::operator()(int steps) const
 {
     double dt = time_to_maturity_ / steps;
     double drift, dx, pu, pd;
 
     drift = (interest_rate_ - 0.5 * sigma_ * sigma_);
+    // implent the formula dor dx, pu and pd
     dx = std::sqrt(std::pow(drift, 2) * dt * dt + sigma_ * sigma_ * dt);
     pu = 0.5 + (drift * dt) / (2.0 * dx);
     pd = 1 - pu;
@@ -21,11 +23,13 @@ double BinomialTree::operator()(int steps) const
 
     for (int i = 0; i <= steps; i++)
     {
+        // payoff at the terminal node
         double log_spot_node = std::log(spot_) + (steps - 2 * i) * dx;
         double spot_node = std::exp(log_spot_node);
         optionPrices[i] = payoff(spot_node);
     }
 
+    // backward induction
     for (int j = steps - 1; j >= 0; j--)
     {
         for (int i = 0; i <= j; i++)
@@ -33,7 +37,7 @@ double BinomialTree::operator()(int steps) const
 
             optionPrices[i] = discount_factor * (pu * optionPrices[i] + pd * optionPrices[i + 1]);
 
-            // Check early exercise for American options
+            // check early exercise for American options
             if (option_type_ == OptionType::AmericanCall || option_type_ == OptionType::AmericanPut)
             {
                 double early_exercise = payoff(std::exp(std::log(spot_) + (j - 2 * i) * dx));

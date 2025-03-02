@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.16)
 project(FE621HW2)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -9,11 +9,20 @@ add_library(OptionType INTERFACE)
 target_include_directories(OptionType INTERFACE ${CMAKE_SOURCE_DIR})
 
 # Create util library (for norm_cdf and other utility functions)
-add_library(UtilLib util.cpp)
+add_library(UtilLib STATIC util.cpp)
 
 # Create BSM Library
 add_library(BSMLib BSM.cpp)
 target_link_libraries(BSMLib PRIVATE OptionType UtilLib)
+
+add_library(OptionDataLib OptionData.cpp)
+target_link_libraries(OptionDataLib PRIVATE UtilLib BSMLib BinomialTreeLib OptionType)
+
+add_library(TickerLib Ticker.cpp)
+target_link_libraries(TickerLib PRIVATE OptionDataLib)
+
+add_library(FileHandlerLib FileHandler.cpp)
+target_link_libraries(FileHandlerLib PRIVATE TickerLib)
 
 # Create BarrierBSM Library
 add_library(BarrierBSMLib BarrierBSM.cpp)
@@ -29,4 +38,13 @@ target_link_libraries(TrinomialTreeLib PRIVATE BinomialTreeLib UtilLib)
 
 # Create main executable
 add_executable(main main.cpp)
-target_link_libraries(main PRIVATE BinomialTreeLib TrinomialTreeLib BSMLib BarrierBSMLib UtilLib)
+target_link_libraries(main PRIVATE 
+    OptionType 
+    UtilLib 
+    BSMLib 
+    BinomialTreeLib 
+    TrinomialTreeLib 
+    BarrierBSMLib 
+    OptionDataLib 
+    TickerLib 
+    FileHandlerLib)

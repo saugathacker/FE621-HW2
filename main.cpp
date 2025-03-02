@@ -1,93 +1,127 @@
 #include "BinomialTree.h"
 #include "TrinomialTree.h"
 #include "BarrierBSM.h"
+#include <iomanip>
+
+#include "FileHandler.h"
+#include "Ticker.h"
+#include "util.h"
 
 int main()
 {
 
-    // Define option parameters
+    // import all the option data
+
+    // FileHandler fh(',', true);
+    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers = fh.read_csv_into_ticker_object("NVDA_options_data.csv");
+    // for (const auto &[ticker, tickerObj] : tickers)
+    // {
+    //     // calculate IV
+    //     tickerObj->calculate_implied_vols_and_bs_price();
+    //     tickerObj->calculate_binom_tree_price();
+    //     tickerObj->write_to_csv("output_NVDA_test.csv");
+    // }
+
+    // Define option parameters for Absolute Error
     double spot = 100.0;         // Current stock price
     double strike = 100.0;       // Strike price
-    double expiry = 1.0;         // Time to maturity (in years)
+    double expiry = 0.3;         // Time to maturity (in years)
     double interest_rate = 0.05; // Risk-free interest rate
     double volatility = 0.4;     // Volatility (sigma)
     int steps = 10000;           // Number of steps in binomial tree
 
-    // // Create BinomialTree objects for Call and Put options
-    // BinomialTree euro_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanCall);
-    // BinomialTree euro_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanPut);
-    // BinomialTree ameri_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanCall);
-    // BinomialTree ameri_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanPut);
+    // Absolute Error
+    // construct one BSM and one BinomTree Object
+    // BSM bs1(strike, spot, expiry, interest_rate, OptionType::EuropeanCall, 0.0);
+    // BinomialTree binom_tree1(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanCall);
 
-    // // Compute option prices using BinomialTree
-    // double call_price = euro_call_tree(steps);
-    // double put_price = euro_put_tree(steps);
+    // std::map<int, double> absolute_error_map = absolute_error(bs1, binom_tree1);
 
-    // // Output results
-    // std::cout << "European Call Option Price: " << call_price << std::endl;
-    // std::cout << "European Put Option Price: " << put_price << std::endl;
+    // std::cout << "================================\n";
+    // std::cout << "|   Steps   |   Absolute Error  |\n";
+    // std::cout << "================================\n";
 
-    // call_price = ameri_call_tree(steps);
-    // put_price = ameri_put_tree(steps);
+    // for (const auto &[steps, error] : absolute_error_map)
+    // {
+    //     std::cout << "| " << std::setw(8) << steps << " | " << std::setw(16) << error << " |\n";
+    // }
 
-    // // Output results
-    // std::cout << "American Call Option Price: " << call_price << std::endl;
-    // std::cout << "American Put Option Price: " << put_price << std::endl;
+    // std::cout << "================================\n";
 
-    // std::cout << "===================================================" << std::endl;
-    // std::cout << "Trinomial Tree" << std::endl;
+    // // Construct a trinomial tree to calculate the price of an European Up-and-Out
+    // // call option. Use S0 = 10, strike K = 10, maturity T = 0.3, volatility σ = 0.2,
+    // // short rate r = 0.01, dividends δ = 0 and barrier H = 11
 
-    // // Create Trinomial Tree objects for Call and Put options
-    // TrinomialTree trinom_euro_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanCall);
-    // TrinomialTree trinom_euro_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::EuropeanPut);
-    // TrinomialTree trinom_ameri_call_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanCall);
-    // TrinomialTree trinom_ameri_put_tree(spot, strike, expiry, interest_rate, volatility, OptionType::AmericanPut);
+    // double s0 = 10;
+    // double k = 10;
+    // double T = 0.3;
+    // double sigma = 0.2;
+    // double r = 0.01;
+    // double barrier_level = 11;
 
-    // // Compute option prices using Trinomial Tree
-    // double call_price3 = trinom_euro_call_tree(steps);
-    // double put_price3 = trinom_euro_put_tree(steps);
+    // TrinomialTree trinom_euro_call_tree2(s0, k, T, r, sigma, OptionType::EuropeanCall);
 
-    // // Output results
-    // std::cout << "European Call Option Price: " << call_price3 << std::endl;
-    // std::cout << "European Put Option Price: " << put_price3 << std::endl;
+    // double trinom_up_and_in_price = trinom_euro_call_tree2.get_barrier_option_price(10,
+    //                                                                                 BarrierOptionType::UpAndIn, barrier_level);
+    // double trinom_up_and_out_price = trinom_euro_call_tree2.get_barrier_option_price(steps,
+    //                                                                                  BarrierOptionType::UpAndOut, barrier_level);
 
-    // call_price3 = trinom_ameri_call_tree(steps);
-    // put_price3 = trinom_ameri_put_tree(steps);
+    // BarrierBSM barrier_model(s0, k, r, T);
 
-    // // Output results
-    // std::cout << "American Call Option Price: " << call_price3 << std::endl;
-    // std::cout << "American Put Option Price: " << put_price3 << std::endl;
+    // double up_and_in_price = barrier_model.barrier_call_price(sigma, BarrierOptionType::UpAndIn, barrier_level);
+    // double up_and_out_price = barrier_model.barrier_call_price(sigma, BarrierOptionType::UpAndOut, barrier_level);
 
-    // Construct a trinomial tree to calculate the price of an European Up-and-Out
-    // call option. Use S0 = 10, strike K = 10, maturity T = 0.3, volatility σ = 0.2,
-    // short rate r = 0.01, dividends δ = 0 and barrier H = 11
+    // std::cout << "===============================================" << std::endl;
+    // std::cout << "|         Barrier Option Prices              |" << std::endl;
+    // std::cout << "===============================================" << std::endl;
+    // std::cout << "| " << std::setw(30) << "Method" << " | "
+    //           << std::setw(20) << "Price" << " |" << std::endl;
+    // std::cout << "-----------------------------------------------" << std::endl;
+    // std::cout << "| " << std::setw(30) << "Trinomial Up-and-In Call" << " | "
+    //           << std::setw(20) << trinom_up_and_in_price << " |" << std::endl;
 
-    double s0 = 10;
-    double k = 10;
-    double maturity = 0.3;
-    double sigma = 0.2;
-    double r = 0.01;
+    // std::cout << "| " << std::setw(30) << "Trinomial Up-and-Out Call" << " | "
+    //           << std::setw(20) << trinom_up_and_out_price << " |" << std::endl;
 
-    double barrier_level = 11;
+    // std::cout << "-----------------------------------------------" << std::endl;
+    // std::cout << "| " << std::setw(30) << "BSM Up-and-In Call" << " | "
+    //           << std::setw(20) << up_and_in_price << " |" << std::endl;
 
-    TrinomialTree trinom_euro_call_tree2(s0, k, maturity, r, sigma, OptionType::EuropeanCall);
+    // std::cout << "| " << std::setw(30) << "BSM Up-and-Out Call" << " | "
+    //           << std::setw(20) << up_and_out_price << " |" << std::endl;
 
-    double trinom_up_and_in_price = trinom_euro_call_tree2.get_barrier_option_price(steps, BarrierOptionType::UpAndIn, barrier_level);
-    double trinom_up_and_out_price = trinom_euro_call_tree2.get_barrier_option_price(steps, BarrierOptionType::UpAndOut, barrier_level);
+    // std::cout << "===============================================" << std::endl;
 
-    std::cout << "Trinomial Tree Prices" << std::endl;
-    std::cout << "Up-and-In Barrier Call Price: " << trinom_up_and_in_price << std::endl;
-    std::cout << "Up-and-Out Barrier Call Price: " << trinom_up_and_out_price << std::endl;
+    // // Trinomial Tree for American put option
+    // TrinomialTree american_put_trinom_tree(s0, k, T, T, sigma, OptionType::AmericanPut);
 
-    BarrierBSM barrier_model(s0, k, r, maturity);
+    // double american_up_and_in_put = american_put_trinom_tree.get_barrier_option_price(steps, BarrierOptionType::UpAndIn, barrier_level);
 
-    double up_and_in_price = barrier_model.barrier_call_price(sigma, BarrierOptionType::UpAndIn, barrier_level);
-    double up_and_out_price = barrier_model.barrier_call_price(sigma, BarrierOptionType::UpAndOut, barrier_level);
+    // std::cout << "| " << std::setw(30) << "American Trinomial Up-and-In Put" << " | "
+    //           << std::setw(20) << american_up_and_in_put << " |" << std::endl;
 
-    std::cout << "===================================================" << std::endl;
-    std::cout << "Barrier BSM Prices" << std::endl;
-    std::cout << "Up-and-In Barrier Call Price: " << up_and_in_price << std::endl;
-    std::cout << "Up-and-Out Barrier Call Price: " << up_and_out_price << std::endl;
+    // dividend assumptions
 
+    double q_continuous = 0.02;
+    double q_discrete = 0.03;
+
+    std::set<double> strikes_continuous = early_exercise_strikes(q_continuous, true);
+    std::set<double> strikes_discrete = early_exercise_strikes(q_discrete, false);
+
+    std::cout << "=================================================" << std::endl;
+    std::cout << "Early Exercise Strikes (Continuous 2% Dividend): ";
+    for (double k : strikes_continuous)
+    {
+        std::cout << k << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Early Exercise Strikes (Discrete 3% Dividend): ";
+    for (double k : strikes_discrete)
+    {
+        std::cout << k << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "=================================================" << std::endl;
     return 0;
 }

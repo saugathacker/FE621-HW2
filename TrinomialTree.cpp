@@ -58,15 +58,26 @@ double TrinomialTree::get_barrier_option_price(int steps, BarrierOptionType barr
 
     std::vector<double> optionPrices(2 * steps + 1, 0.0);
     double log_spot = std::log(spot_);
-    // Compute terminal node payoffs
+    // compute terminal node payoffs
     for (int i = 0; i <= 2 * steps; i++)
     {
         double log_spot_node = log_spot + (steps - i) * dx;
         double spot_node = std::exp(log_spot_node);
-        optionPrices[i] = payoff(spot_node);
+        bool active = (barrier_type == BarrierOptionType::UpAndIn && spot_node >= barrier_level) ||
+                      (barrier_type == BarrierOptionType::DownAndIn && spot_node <= barrier_level) ||
+                      (barrier_type == BarrierOptionType::UpAndOut && spot_node < barrier_level) ||
+                      (barrier_type == BarrierOptionType::DownAndOut && spot_node > barrier_level);
+        if (active)
+        {
+            optionPrices[i] = payoff(spot_node);
+        }
+        else
+        {
+            optionPrices[i] = 0.0;
+        }
     }
 
-    // Backward induction with trinomial probabilities
+    // backward induction with trinomial probabilities
     for (int j = steps - 1; j >= 0; j--)
     {
         for (int i = 0; i <= 2 * j; i++)
@@ -102,7 +113,7 @@ double TrinomialTree::get_barrier_option_price(int steps, BarrierOptionType barr
                 if (option_type_ == OptionType::AmericanCall || option_type_ == OptionType::AmericanPut)
                 {
                     double early_exercise = payoff(current_stock_price);
-                    option_price = std::max(optionPrices[i], early_exercise);
+                    option_price = std::max(option_price, early_exercise);
                 }
                 optionPrices[i] = option_price;
             }
